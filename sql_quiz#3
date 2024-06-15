@@ -1,0 +1,98 @@
+CREATE TABLE customers(
+  		customers_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  		customers_name VARCHAR(100),
+  		customers_tel INTEGER
+  );
+
+  --Insérer des données dans la table customers
+INSERT INTO customers (customers_name, customers_tel) VALUES ('Jean Dupont', '0123456789');
+INSERT INTO customers (customers_name, customers_tel) VALUES ('Alice Martin', '0234567890');
+INSERT INTO customers (customers_name, customers_tel) VALUES ('Jacques Bernard', '0345678901');
+
+
+  
+ CREATE TABLE products(
+ 	products_id INTEGER PRIMARY KEY AUTOINCREMENT,
+   	products_name VARCHAR(100),
+   	category VARCHAR(100),
+   	price INTEGER
+ );
+
+ --Insérer des données dans la table products
+
+INSERT INTO products (products_name, category, price) VALUES ('Produit A', 'Catégorie 1', '6000');
+INSERT INTO products (products_name, category, price) VALUES ('Produit B', 'Catégorie 2', '7500');
+INSERT INTO products (products_name, category, price) VALUES ('Produit C', 'Catégorie 3', '12000');
+INSERT INTO products (products_name, category, price) VALUES ('Produit D', 'Catégorie 1', '9500');
+
+
+ CREATE  TABLE orders(
+ 	customerId INTEGER,
+    FOREIGN KEY (customerId) REFERENCES customers(customers_id),
+    productsId INTEGER,
+    FOREIGN KEY (productsId) REFERENCES products(products_id),
+    orderDate VARCHAR(100),
+    quantuty INTEGER,
+    Total_amount INTEGER
+ );
+
+ --Insérer des données dans la table orders
+
+INSERT INTO orders (customerId, productsId, orderDate, quantuty, Total_amount) VALUES (1, 1, '2020-01-15', 2, 12000);
+INSERT INTO orders (customerId, productsId, orderDate, quantuty, Total_amount) VALUES (2, 2, '2020-02-20', 1, 7500);
+INSERT INTO orders (customerId, productsId, orderDate, quantuty, Total_amount) VALUES (3, 3, '2020-03-25', 3, 36000);
+INSERT INTO orders (customerId, productsId, orderDate, quantuty, Total_amount) VALUES (1, 4, '2020-04-10', 1, 9500);
+INSERT INTO orders (customerId, productsId, orderDate, quantuty, Total_amount) VALUES (2, 1, '2020-05-05', 2, 12000);
+INSERT INTO orders (customerId, productsId, orderDate, quantuty, Total_amount) VALUES (3, 2, '2020-06-15', 1, 7500);
+
+--INCREMENTATION DES INSTRUCTIONS--
+
+--Afficher toutes les données des clients
+
+SELECT * FROM customers;
+
+--Afficher le nom du produit et la catégorie pour les produits dont le prix est compris entre 5000 et 10000
+
+SELECT products_name,category  FROM products WHERE price BETWEEN 5000 AND 10000;
+
+--Affichez toutes les données des produits triés par ordre décroissant de prix.
+SELECT * FROM products ORDER BY price DESC;
+
+--Afficher le nombre total de commandes, le montant moyen, le montant total le plus élevé et le montant total inférieur.
+
+ SELECT COUNT(*) AS Total_orders,AVG(Total_amount) AS Montant_moyen,MAX(Total_amount) AS Montant_max,MIN(Total_amount) AS Montant_min FROM orders;
+ 
+ --Pour chaque product_id, afficher le nombre de commandes 
+
+SELECT productId ,COUNT(*) AS NombreDeCommandes FROM orders GROUP BY productId;
+
+
+--Afficher le customer_id qui a plus de 2 commandes   
+
+SELECT customerId FROM orders GROUP BY customerId  HAVING COUNT(*) > 2;
+
+--Pour chaque mois de l'année 2020, affichez le nombre de commandes
+SELECT strftime('%Y-%m', orderDate) AS month, 
+       COUNT(*) AS number_of_orders 
+FROM orders 
+WHERE strftime('%Y', orderDate) = '2020' 
+GROUP BY strftime('%Y-%m', orderDate);
+
+--Pour chaque commande, affichez le nom_produit, le nom_client et la date de la commande
+SELECT products.products_name, 
+       customers.customers_name, 
+       orders.orderDate 
+FROM orders 
+JOIN products ON orders.productsId = products.products_id 
+JOIN customers ON orders.customerId = customers.customers_id;
+
+--Afficher toutes les commandes passées il y a trois mois 
+SELECT * FROM orders WHERE orderDate <= Date('now','-3 months');
+
+--Afficher les clients (customer_id) qui n'ont jamais commandé de produit
+
+SELECT customers.customers_id 
+FROM customers 
+LEFT JOIN orders ON customers.customers_id = orders.customerId 
+WHERE orders.customerId IS NULL;
+
